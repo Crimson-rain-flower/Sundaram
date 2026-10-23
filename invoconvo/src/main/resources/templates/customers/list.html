@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customers | Sundaram</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<aside class="sidebar">
+    <div class="brand">SUNDARAM</div>
+    <div class="brand-sub">Skincare Studio</div>
+    <nav>
+        <a th:href="@{/dashboard}"><span>◈</span> <span>Dashboard</span></a>
+        <a th:href="@{/invoices}"><span>◈</span> <span>Invoices</span></a>
+        <a th:href="@{/customers}" class="active"><span>◈</span> <span>Customers</span></a>
+        <a th:href="@{/products}"><span>◈</span> <span>Products</span></a>
+        <a th:href="@{/swagger-ui.html}" target="_blank"><span>◈</span> <span>API Docs</span></a>
+    </nav>
+    <div class="logout"><a th:href="@{/logout}"><span>◈</span> <span>Sign Out</span></a></div>
+</aside>
+<main class="main">
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div class="page-header">
+        <h1>Customers</h1>
+        <a th:href="@{/customers/new}" class="btn btn-accent">+ New Customer</a>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+            <tr><th>Name</th><th>Email</th><th>Phone</th><th>City</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="c : ${customers}">
+                <td th:text="${c.name}"></td>
+                <td th:text="${c.email}"></td>
+                <td th:text="${c.phone}"></td>
+                <td th:text="${c.city}"></td>
+                <td class="actions" style="margin:0;">
+                    <a th:href="@{/customers/{id}/edit(id=${c.id})}" class="btn btn-sm btn-secondary">Edit</a>
+                    <form th:action="@{/customers/{id}/delete(id=${c.id})}" method="post" style="display:inline;" onsubmit="return confirm('Delete?');">
+                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

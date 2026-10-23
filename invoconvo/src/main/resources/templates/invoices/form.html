@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${invoice.id != null ? 'Edit' : 'New'} + ' Invoice | Sundaram'">Invoice Form</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        body { font-family: 'DM Sans', system-ui, sans-serif; }
+        .sidebar .brand { font-family: 'Cormorant Garamond', Georgia, serif; }
+        .form-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.35rem;
+            align-items: start;
+        }
+        .panel-box {
+            background: var(--white);
+            border-radius: 14px;
+            padding: 1.4rem 1.5rem;
+            box-shadow: 0 4px 20px rgba(45,74,62,0.08);
+            border: 1px solid var(--beige);
+        }
+        .panel-box h3 {
+            font-size: 0.92rem;
+            color: var(--forest-deep);
+            margin-bottom: 1rem;
+            font-weight: 600;
+            border-bottom: 2px solid var(--rose-red, #A63D40);
+            padding-bottom: 0.45rem;
+        }
+        .item-row {
+            display: grid;
+            grid-template-columns: 2.2fr 0.7fr 1fr 0.65fr 1fr auto;
+            gap: 0.45rem;
+            align-items: end;
+            margin-bottom: 0.6rem;
+        }
+        .item-row label { font-size: 0.68rem; }
+        .line-amt {
+            background: var(--cream-dark) !important;
+            font-weight: 600;
+            color: var(--forest-deep);
+        }
+        .mood-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1.4rem;
+        }
+        .mood-row img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+        .mood-row .cap {
+            font-size: 0.72rem;
+            color: var(--muted);
+            font-style: italic;
+            margin-top: 0.35rem;
+            text-align: center;
+        }
+        /* hidden template of product options */
+        #productOptionsTemplate { display: none; }
+        @media (max-width: 960px) {
+            .form-split { grid-template-columns: 1fr; }
+            .item-row { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+<aside class="sidebar">
+    <div class="brand">SUNDARAM</div>
+    <div class="brand-sub">Skincare Studio</div>
+    <nav>
+        <a th:href="@{/dashboard}"><span>◈</span> <span>Dashboard</span></a>
+        <a th:href="@{/invoices}" class="active"><span>◈</span> <span>Invoices</span></a>
+        <a th:href="@{/customers}"><span>◈</span> <span>Customers</span></a>
+        <a th:href="@{/products}"><span>◈</span> <span>Products</span></a>
+        <a th:href="@{/swagger-ui.html}" target="_blank"><span>◈</span> <span>API Docs</span></a>
+    </nav>
+    <div class="logout"><a th:href="@{/logout}"><span>◈</span> <span>Sign Out</span></a></div>
+</aside>
+<main class="main">
+    <div class="page-header">
+        <h1 th:text="${invoice.id != null ? 'Edit Invoice' : 'New Invoice'}">Invoice</h1>
+        <a th:href="@{/invoices}" class="btn btn-secondary">Cancel</a>
+    </div>
+
+    <!-- Hidden select used only to clone real product options -->
+    <select id="productOptionsTemplate" aria-hidden="true">
+        <option value="">Choose product...</option>
+        <option th:each="p : ${products}"
+                th:value="${p.id}"
+                th:attr="data-name=${p.name}, data-price=${p.unitPrice}, data-tax=${p.taxRate}"
+                th:text="${p.name + ' — ₹' + p.unitPrice}">
+        </option>
+    </select>
+
+    <form th:action="@{/invoices}" method="post" th:object="${invoice}" id="invoiceForm">
+        <input type="hidden" th:field="*{id}">
+
+        <div class="form-split">
+            <!-- LEFT: Customer + Terms -->
+            <div class="panel-box">
+                <h3>Customer &amp; Terms</h3>
+                <div class="form-group">
+                    <label>Customer *</label>
+                    <select name="customerId" required>
+                        <option value="">Select customer...</option>
+                        <option th:each="c : ${customers}" th:value="${c.id}" th:text="${c.name}"
+                                th:selected="${invoice.customer != null and invoice.customer.id == c.id}"></option>
+                    </select>
+                </div>
+                <div class="form-grid" style="margin-top:0.75rem;">
+                    <div class="form-group">
+                        <label>Invoice Date</label>
+                        <input type="date" th:field="*{invoiceDate}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Due Date</label>
+                        <input type="date" th:field="*{dueDate}">
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select th:field="*{status}">
+                            <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}"></option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Discount (₹)</label>
+                        <input type="number" step="0.01" min="0" th:field="*{discountAmount}" id="discountInput">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top:0.85rem;">
+                    <label>Terms &amp; Conditions</label>
+                    <textarea th:field="*{terms}" rows="4" readonly style="background:var(--cream-dark);cursor:default;"></textarea>
+                    <small style="color:var(--muted);font-size:0.72rem;">Same standard terms on every invoice</small>
+                </div>
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea th:field="*{notes}" rows="2" placeholder="Optional note for the customer"></textarea>
+                </div>
+            </div>
+
+            <!-- RIGHT: Products + Payment -->
+            <div class="panel-box">
+                <h3>Products &amp; Payment</h3>
+                <p th:if="${#lists.isEmpty(products)}" style="color:#A63D40;font-size:0.85rem;margin-bottom:0.75rem;">
+                    No products found. Add products under Products first.
+                </p>
+                <div id="items">
+                    <div class="item-row" th:each="item, stat : *{items}">
+                        <div class="form-group">
+                            <label th:if="${stat.first}">Product</label>
+                            <select class="product-select" onchange="onProductPick(this)">
+                                <option value="">Choose product...</option>
+                                <option th:each="p : ${products}"
+                                        th:value="${p.id}"
+                                        th:attr="data-name=${p.name}, data-price=${p.unitPrice}, data-tax=${p.taxRate}"
+                                        th:text="${p.name + ' — ₹' + p.unitPrice}"
+                                        th:selected="${item.description != null and item.description == p.name}">
+                                </option>
+                            </select>
+                            <input type="hidden" class="desc-input"
+                                   th:name="'items[' + ${stat.index} + '].description'"
+                                   th:value="${item.description}">
+                        </div>
+                        <div class="form-group">
+                            <label th:if="${stat.first}">Qty</label>
+                            <input type="number" step="1" min="1" class="qty-input"
+                                   th:name="'items[' + ${stat.index} + '].quantity'"
+                                   th:value="${item.quantity != null ? item.quantity : 1}"
+                                   oninput="recalcRow(this)" required>
+                        </div>
+                        <div class="form-group">
+                            <label th:if="${stat.first}">Unit Price (₹)</label>
+                            <input type="number" step="0.01" min="0" class="price-input"
+                                   th:name="'items[' + ${stat.index} + '].unitPrice'"
+                                   th:value="${item.unitPrice}"
+                                   oninput="recalcRow(this)" required>
+                        </div>
+                        <div class="form-group">
+                            <label th:if="${stat.first}">Tax %</label>
+                            <input type="number" step="0.01" min="0" class="tax-input"
+                                   th:name="'items[' + ${stat.index} + '].taxRate'"
+                                   th:value="${item.taxRate != null ? item.taxRate : 12}"
+                                   oninput="recalcRow(this)">
+                        </div>
+                        <div class="form-group">
+                            <label th:if="${stat.first}">Amount</label>
+                            <input type="text" class="line-amt" readonly tabindex="-1" value="₹0.00">
+                        </div>
+                        <div class="form-group">
+                            <label th:if="${stat.first}">&nbsp;</label>
+                            <button type="button" class="btn btn-sm btn-danger" onclick="removeRow(this)">✕</button>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-outline btn-sm" onclick="addItem()" style="margin-top:0.4rem;">+ Add Product</button>
+
+                <div style="margin-top:1rem;padding:0.75rem 0.9rem;background:var(--cream);border-radius:10px;border-left:3px solid var(--rose-red,#A63D40);">
+                    <div style="display:flex;justify-content:space-between;font-size:0.9rem;">
+                        <span>Line total (before tax)</span>
+                        <strong id="estTotal">₹0.00</strong>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top:1.1rem;">
+                    <label>Payment Method</label>
+                    <select th:field="*{paymentMethod}" id="payMethod" onchange="syncPaymentHint()">
+                        <option value="UPI">UPI</option>
+                        <option value="CARD_DEBIT">Debit Card</option>
+                        <option value="CARD_CREDIT">Credit Card</option>
+                        <option value="BANK">Bank Transfer</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Payment Instructions</label>
+                    <textarea th:field="*{paymentInstructions}" id="payInstr" rows="2"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions" style="margin-top:1.2rem;">
+            <button type="submit" class="btn btn-primary">Save Invoice</button>
+            <a th:href="@{/invoices}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+
+    <div class="mood-row">
+        <div>
+            <img th:src="@{/images/marigold.png}" alt="Fragrance legacy">
+            <p class="cap">India's fragrance legacy</p>
+        </div>
+        <div>
+            <img th:src="@{/images/bowls.png}" alt="Surroundings">
+            <p class="cap">Inspired by our surroundings</p>
+        </div>
+    </div>
+</main>
+
+<script>
+let itemIndex = document.querySelectorAll('.item-row').length || 1;
+
+const payHints = {
+    UPI: 'UPI: sundaram@okaxis',
+    CARD_DEBIT: 'Pay by debit card at checkout or POS.',
+    CARD_CREDIT: 'Pay by credit card. EMI available on request.',
+    BANK: 'Bank transfer — HDFC 50200012345678 · Sundaram Skincare'
+};
+
+function syncPaymentHint() {
+    const m = document.getElementById('payMethod').value;
+    const ta = document.getElementById('payInstr');
+    if (ta && payHints[m]) ta.value = payHints[m];
+}
+
+function onProductPick(sel) {
+    const opt = sel.options[sel.selectedIndex];
+    if (!opt || !opt.value) return;
+    const row = sel.closest('.item-row');
+    const name = opt.getAttribute('data-name') || opt.textContent.split('—')[0].trim();
+    const price = opt.getAttribute('data-price') || '0';
+    const tax = opt.getAttribute('data-tax') || '12';
+    row.querySelector('.desc-input').value = name;
+    row.querySelector('.price-input').value = price;
+    row.querySelector('.tax-input').value = tax;
+    recalcRow(sel);
+}
+
+function recalcRow(el) {
+    const row = el.closest('.item-row');
+    const qty = parseFloat(row.querySelector('.qty-input').value) || 0;
+    const price = parseFloat(row.querySelector('.price-input').value) || 0;
+    row.querySelector('.line-amt').value = '₹' + (qty * price).toFixed(2);
+    recalcTotal();
+}
+
+function recalcTotal() {
+    let sum = 0;
+    document.querySelectorAll('.item-row').forEach(row => {
+        const qty = parseFloat(row.querySelector('.qty-input')?.value) || 0;
+        const price = parseFloat(row.querySelector('.price-input')?.value) || 0;
+        sum += qty * price;
+    });
+    const disc = parseFloat(document.getElementById('discountInput')?.value) || 0;
+    document.getElementById('estTotal').textContent = '₹' + Math.max(0, sum - disc).toFixed(2);
+}
+
+function removeRow(btn) {
+    if (document.querySelectorAll('.item-row').length <= 1) return;
+    btn.closest('.item-row').remove();
+    recalcTotal();
+}
+
+function addItem() {
+    const template = document.getElementById('productOptionsTemplate');
+    const optsHtml = template.innerHTML;
+    const container = document.getElementById('items');
+    const div = document.createElement('div');
+    div.className = 'item-row';
+    div.innerHTML = `
+        <div class="form-group">
+            <select class="product-select" onchange="onProductPick(this)">${optsHtml}</select>
+            <input type="hidden" class="desc-input" name="items[${itemIndex}].description" value="">
+        </div>
+        <div class="form-group">
+            <input type="number" step="1" min="1" class="qty-input" name="items[${itemIndex}].quantity" value="1" oninput="recalcRow(this)" required>
+        </div>
+        <div class="form-group">
+            <input type="number" step="0.01" min="0" class="price-input" name="items[${itemIndex}].unitPrice" value="0" oninput="recalcRow(this)" required>
+        </div>
+        <div class="form-group">
+            <input type="number" step="0.01" min="0" class="tax-input" name="items[${itemIndex}].taxRate" value="12" oninput="recalcRow(this)">
+        </div>
+        <div class="form-group">
+            <input type="text" class="line-amt" readonly tabindex="-1" value="₹0.00">
+        </div>
+        <div class="form-group">
+            <button type="button" class="btn btn-sm btn-danger" onclick="removeRow(this)">✕</button>
+        </div>`;
+    container.appendChild(div);
+    itemIndex++;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.item-row').forEach(row => {
+        const q = row.querySelector('.qty-input');
+        if (q) recalcRow(q);
+    });
+    document.getElementById('discountInput')?.addEventListener('input', recalcTotal);
+});
+</script>
+</body>
+</html>

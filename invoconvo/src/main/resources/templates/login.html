@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In | Sundaram</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        body { margin: 0; font-family: 'DM Sans', system-ui, sans-serif; }
+        .login-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 100vh;
+        }
+        .login-visual {
+            position: relative;
+            overflow: hidden;
+            background: #2D4A3E;
+        }
+        .login-visual img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .login-visual .overlay-text {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            padding: 2rem;
+            background: linear-gradient(transparent, rgba(26,47,40,0.88));
+            color: #FAF6ED;
+        }
+        .login-visual .overlay-text h2 {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+            letter-spacing: 0.04em;
+        }
+        .login-visual .overlay-text p {
+            font-size: 0.9rem;
+            opacity: 0.85;
+            font-style: italic;
+        }
+        .login-form-side {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(160deg, #FAF6ED 0%, #F0E9D8 100%);
+            padding: 2rem;
+        }
+        .login-box {
+            background: #fff;
+            padding: 2.5rem;
+            border-radius: 18px;
+            width: 100%;
+            max-width: 380px;
+            box-shadow: 0 12px 40px rgba(45,74,62,0.1);
+            border: 1px solid #E8DFD0;
+        }
+        .login-box h1 {
+            text-align: center;
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            color: #2D4A3E;
+            letter-spacing: 0.14em;
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+        .login-box .sub {
+            text-align: center;
+            color: #A63D40;
+            font-style: italic;
+            font-size: 0.85rem;
+            margin-bottom: 1.6rem;
+        }
+        @media (max-width: 800px) {
+            .login-split { grid-template-columns: 1fr; }
+            .login-visual { min-height: 220px; max-height: 280px; }
+        }
+    </style>
+</head>
+<body>
+<div class="login-split">
+    <div class="login-visual">
+        <img th:src="@{/images/thali.png}" alt="Sundaram ritual thali">
+        <div class="overlay-text">
+            <h2>SUNDARAM</h2>
+            <p>Rooted in ritual. Crafted for skin.</p>
+        </div>
+    </div>
+    <div class="login-form-side">
+        <div class="login-box">
+            <h1>SUNDARAM</h1>
+            <p class="sub">Sign in to your studio</p>
+            <div th:if="${param.error}" class="alert" style="background:#F8D7DA;color:#8B2E2E;margin-bottom:1rem;">Invalid username or password</div>
+            <div th:if="${param.logout}" class="alert alert-success" style="margin-bottom:1rem;">You have been signed out</div>
+            <form th:action="@{/login}" method="post">
+                <div class="form-group" style="margin-bottom:1rem;">
+                    <label>Username</label>
+                    <input type="text" name="username" required autofocus placeholder="admin">
+                </div>
+                <div class="form-group" style="margin-bottom:1.25rem;">
+                    <label>Password</label>
+                    <input type="password" name="password" required placeholder="admin123">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">Sign In</button>
+            </form>
+            <p style="margin-top:1.25rem;font-size:0.75rem;color:#7A7068;text-align:center;">Demo · admin / admin123</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${invoice.invoiceNumber} + ' | Sundaram'">Invoice</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        body { font-family: 'DM Sans', system-ui, sans-serif; }
+        .sidebar .brand { font-family: 'Cormorant Garamond', Georgia, serif; }
+        .view-layout {
+            display: grid;
+            grid-template-columns: 1fr 260px;
+            gap: 1.35rem;
+            align-items: start;
+        }
+        .side-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            position: sticky;
+            top: 1.25rem;
+        }
+        .side-mood {
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 8px 28px rgba(26,47,40,0.12);
+        }
+        .side-mood img {
+            width: 100%;
+            display: block;
+            object-fit: cover;
+            max-height: 280px;
+        }
+        .side-mood .cap {
+            padding: 0.7rem 0.9rem;
+            background: var(--forest-deep);
+            color: var(--cream);
+            font-size: 0.76rem;
+            font-style: italic;
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            text-align: center;
+        }
+        @media (max-width: 900px) {
+            .view-layout { grid-template-columns: 1fr; }
+            .side-stack { position: static; flex-direction: row; flex-wrap: wrap; }
+            .side-mood { flex: 1; min-width: 180px; }
+        }
+    </style>
+</head>
+<body>
+<aside class="sidebar">
+    <div class="brand">SUNDARAM</div>
+    <div class="brand-sub">Skincare Studio</div>
+    <nav>
+        <a th:href="@{/dashboard}"><span>◈</span> <span>Dashboard</span></a>
+        <a th:href="@{/invoices}" class="active"><span>◈</span> <span>Invoices</span></a>
+        <a th:href="@{/customers}"><span>◈</span> <span>Customers</span></a>
+        <a th:href="@{/products}"><span>◈</span> <span>Products</span></a>
+        <a th:href="@{/swagger-ui.html}" target="_blank"><span>◈</span> <span>API Docs</span></a>
+    </nav>
+    <div class="logout"><a th:href="@{/logout}"><span>◈</span> <span>Sign Out</span></a></div>
+</aside>
+<main class="main">
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div class="page-header">
+        <h1 th:text="${invoice.invoiceNumber}">Invoice</h1>
+        <div class="actions">
+            <a th:href="@{/invoices/{id}/edit(id=${invoice.id})}" class="btn btn-secondary">Edit</a>
+            <a th:href="@{/invoices/{id}/pdf(id=${invoice.id})}" class="btn btn-accent">Download PDF</a>
+            <form th:action="@{/invoices/{id}/duplicate(id=${invoice.id})}" method="post" style="display:inline;">
+                <button type="submit" class="btn btn-outline">Duplicate</button>
+            </form>
+            <form th:action="@{/invoices/{id}/delete(id=${invoice.id})}" method="post" style="display:inline;" onsubmit="return confirm('Delete this invoice?');">
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="view-layout">
+        <div class="invoice-preview">
+            <div class="inv-header">
+                <div>
+                    <div class="inv-title">INVOICE</div>
+                    <div class="inv-brand">Sundaram · Rooted in Ritual</div>
+                </div>
+                <div class="inv-meta">
+                    <div><strong>No:</strong> <span th:text="${invoice.invoiceNumber}"></span></div>
+                    <div><strong>Date:</strong> <span th:text="${invoice.invoiceDate}"></span></div>
+                    <div><strong>Due:</strong> <span th:text="${invoice.dueDate}"></span></div>
+                    <div style="margin-top:0.5rem;">
+                        <span class="badge" th:classappend="'badge-' + ${#strings.toLowerCase(invoice.status.name())}" th:text="${invoice.status}"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="inv-parties">
+                <div class="inv-party">
+                    <h4>From</h4>
+                    <div style="font-weight:600;" th:text="${invoice.sellerName}"></div>
+                    <div style="font-size:0.85rem;color:var(--muted);" th:text="${invoice.sellerEmail}"></div>
+                    <div style="font-size:0.85rem;color:var(--muted);" th:text="${invoice.sellerPhone}"></div>
+                    <div style="font-size:0.85rem;color:var(--muted);" th:text="${invoice.sellerAddress}"></div>
+                </div>
+                <div class="inv-party">
+                    <h4>Bill To</h4>
+                    <div style="font-weight:600;" th:text="${invoice.customer?.name}"></div>
+                    <div style="font-size:0.85rem;color:var(--muted);" th:text="${invoice.customer?.email}"></div>
+                    <div style="font-size:0.85rem;color:var(--muted);" th:text="${invoice.customer?.phone}"></div>
+                    <div style="font-size:0.85rem;color:var(--muted);" th:text="${invoice.customer?.address}"></div>
+                </div>
+            </div>
+
+            <table class="inv-items">
+                <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Qty</th>
+                    <th>Unit Price</th>
+                    <th>Tax %</th>
+                    <th>Amount</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${invoice.items}">
+                    <td th:text="${item.description}"></td>
+                    <td th:text="${item.quantity}"></td>
+                    <td th:text="'₹' + ${#numbers.formatDecimal(item.unitPrice, 1, 'COMMA', 2, 'POINT')}"></td>
+                    <td th:text="${item.taxRate} + '%'"></td>
+                    <td th:text="'₹' + ${#numbers.formatDecimal(item.lineTotal, 1, 'COMMA', 2, 'POINT')}"></td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="inv-totals">
+                <div class="row"><span>Subtotal</span><span th:text="'₹' + ${#numbers.formatDecimal(invoice.subtotal, 1, 'COMMA', 2, 'POINT')}"></span></div>
+                <div class="row"><span>Tax</span><span th:text="'₹' + ${#numbers.formatDecimal(invoice.taxTotal, 1, 'COMMA', 2, 'POINT')}"></span></div>
+                <div class="row"><span>Discount</span><span th:text="'-₹' + ${#numbers.formatDecimal(invoice.discountAmount, 1, 'COMMA', 2, 'POINT')}"></span></div>
+                <div class="row grand"><span>Total</span><span th:text="'₹' + ${#numbers.formatDecimal(invoice.total, 1, 'COMMA', 2, 'POINT')}"></span></div>
+            </div>
+
+            <div th:if="${invoice.paymentMethod}" style="margin-top:1.25rem;">
+                <h4 style="color:var(--forest);font-size:0.8rem;text-transform:uppercase;letter-spacing:0.04em;">Payment Method</h4>
+                <p style="font-size:0.9rem;color:var(--muted);" th:text="${invoice.paymentMethod}"></p>
+            </div>
+            <div th:if="${invoice.paymentInstructions}" style="margin-top:0.75rem;">
+                <h4 style="color:var(--forest);font-size:0.8rem;text-transform:uppercase;letter-spacing:0.04em;">Payment Instructions</h4>
+                <p style="font-size:0.9rem;color:var(--muted);" th:text="${invoice.paymentInstructions}"></p>
+            </div>
+            <div th:if="${invoice.notes}" style="margin-top:1rem;">
+                <h4 style="color:var(--forest);font-size:0.8rem;text-transform:uppercase;letter-spacing:0.04em;">Notes</h4>
+                <p style="font-size:0.9rem;color:var(--muted);" th:text="${invoice.notes}"></p>
+            </div>
+            <div th:if="${invoice.terms}" style="margin-top:1rem;">
+                <h4 style="color:var(--forest);font-size:0.8rem;text-transform:uppercase;letter-spacing:0.04em;">Terms &amp; Conditions</h4>
+                <p style="font-size:0.9rem;color:var(--muted);" th:text="${invoice.terms}"></p>
+            </div>
+        </div>
+
+        <div class="side-stack">
+            <div class="side-mood">
+                <img th:src="@{/images/hibiscus.png}" alt="Little things">
+                <div class="cap">Little things · And we're home</div>
+            </div>
+            <div class="side-mood">
+                <img th:src="@{/images/ritual-hand.png}" alt="Beauty rituals">
+                <div class="cap">The first beauty rituals weren't written in a bottle</div>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-top:1.5rem;" class="form-card" th:if="${invoice.status.name() != 'PAID' and invoice.status.name() != 'CANCELLED'}">
+        <h3 style="margin-bottom:0.75rem;color:var(--forest-deep);font-size:1rem;">Update Status</h3>
+        <form th:action="@{/invoices/{id}/status(id=${invoice.id})}" method="post" style="display:flex;gap:0.75rem;align-items:center;">
+            <select name="status" style="max-width:200px;">
+                <option th:each="s : ${T(com.invoconvo.model.InvoiceStatus).values()}" th:value="${s}" th:text="${s}" th:selected="${invoice.status == s}"></option>
+            </select>
+            <button type="submit" class="btn btn-primary">Update</button>
+        </form>
+    </div>
+</main>
+</body>
+</html>

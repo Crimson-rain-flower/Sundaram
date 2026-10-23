@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sundaram — Rooted in Ritual</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .landing {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            background: #1A2F28;
+        }
+        .landing-bg {
+            position: absolute;
+            inset: 0;
+            background-image: url('/images/lotus-bg.png');
+            background-size: cover;
+            background-position: center;
+            filter: brightness(0.45) saturate(1.1);
+            transform: scale(1.05);
+            transition: transform 12s ease;
+        }
+        .landing:hover .landing-bg {
+            transform: scale(1.08);
+        }
+        .landing-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                160deg,
+                rgba(26, 47, 40, 0.75) 0%,
+                rgba(45, 74, 62, 0.55) 45%,
+                rgba(26, 47, 40, 0.7) 100%
+            );
+            pointer-events: none;
+        }
+        .landing-content {
+            position: relative;
+            z-index: 2;
+            max-width: 620px;
+            animation: fadeUp 1s ease-out;
+        }
+        .landing .brand-mark {
+            font-size: 3.6rem;
+            font-weight: 600;
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            color: #FAF6ED;
+            letter-spacing: 0.18em;
+            margin-bottom: 0.4rem;
+            text-shadow: 0 2px 24px rgba(0,0,0,0.35);
+        }
+        .landing .tagline {
+            font-size: 1.2rem;
+            color: #E8C547;
+            font-style: italic;
+            margin-bottom: 1.6rem;
+            letter-spacing: 0.04em;
+        }
+        .landing .desc {
+            color: rgba(250, 246, 237, 0.9);
+            font-size: 1.02rem;
+            max-width: 460px;
+            margin: 0 auto 2.2rem;
+            line-height: 1.75;
+        }
+        .landing .cta-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .landing .btn-cta {
+            padding: 0.9rem 2.1rem;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+        }
+        .landing .btn-cta.primary {
+            background: #DAA520;
+            color: #1A2F28;
+        }
+        .landing .btn-cta.primary:hover {
+            background: #E8C547;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 28px rgba(218, 165, 32, 0.4);
+        }
+        .landing .btn-cta.outline {
+            border-color: rgba(250, 246, 237, 0.7);
+            color: #FAF6ED;
+            background: rgba(250, 246, 237, 0.06);
+            backdrop-filter: blur(6px);
+        }
+        .landing .btn-cta.outline:hover {
+            background: rgba(250, 246, 237, 0.15);
+            transform: translateY(-3px);
+        }
+        .landing .ritual-line {
+            margin-top: 3.2rem;
+            font-size: 0.78rem;
+            color: rgba(250, 246, 237, 0.55);
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(28px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+<section class="landing">
+    <div class="landing-bg"></div>
+    <div class="landing-overlay"></div>
+    <div class="landing-content">
+        <div class="brand-mark">SUNDARAM</div>
+        <p class="tagline">Rooted in Ritual. Crafted for Skin.</p>
+        <p class="desc">
+            Born from the quiet wisdom of Indian botanicals — turmeric, rose, sandalwood and neem.
+            Sundaram is a modern skincare house that honours tradition while embracing clean, thoughtful formulation.
+        </p>
+        <div class="cta-group">
+            <a th:href="@{/login}" class="btn-cta primary">Enter Studio</a>
+            <a th:href="@{/login}" class="btn-cta outline">View Invoices</a>
+        </div>
+        <p class="ritual-line">Haldi · Rose · Sandalwood · Neem</p>
+    </div>
+</section>
+</body>
+</html>

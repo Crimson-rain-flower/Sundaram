@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer | Sundaram</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<aside class="sidebar">
+    <div class="brand">SUNDARAM</div>
+    <div class="brand-sub">Skincare Studio</div>
+    <nav>
+        <a th:href="@{/dashboard}"><span>◈</span> <span>Dashboard</span></a>
+        <a th:href="@{/invoices}"><span>◈</span> <span>Invoices</span></a>
+        <a th:href="@{/customers}" class="active"><span>◈</span> <span>Customers</span></a>
+        <a th:href="@{/products}"><span>◈</span> <span>Products</span></a>
+        <a th:href="@{/swagger-ui.html}" target="_blank"><span>◈</span> <span>API Docs</span></a>
+    </nav>
+    <div class="logout"><a th:href="@{/logout}"><span>◈</span> <span>Sign Out</span></a></div>
+</aside>
+<main class="main">
+    <div class="page-header">
+        <h1 th:text="${customer.id != null ? 'Edit Customer' : 'New Customer'}">Customer</h1>
+    </div>
+    <form th:action="@{/customers}" method="post" th:object="${customer}" class="form-card">
+        <input type="hidden" th:field="*{id}">
+        <div class="form-grid">
+            <div class="form-group"><label>Name *</label><input th:field="*{name}" required></div>
+            <div class="form-group"><label>Email</label><input type="email" th:field="*{email}"></div>
+            <div class="form-group"><label>Phone</label><input th:field="*{phone}"></div>
+            <div class="form-group full"><label>Address</label><textarea th:field="*{address}" rows="2"></textarea></div>
+            <div class="form-group"><label>City</label><input th:field="*{city}"></div>
+            <div class="form-group"><label>Country</label><input th:field="*{country}" value="India"></div>
+        </div>
+        <div class="actions">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a th:href="@{/customers}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</main>
+</body>
+</html>

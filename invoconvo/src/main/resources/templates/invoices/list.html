@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoices | Sundaram</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<aside class="sidebar">
+    <div class="brand">SUNDARAM</div>
+    <div class="brand-sub">Skincare Studio</div>
+    <nav>
+        <a th:href="@{/dashboard}"><span>◈</span> <span>Dashboard</span></a>
+        <a th:href="@{/invoices}" class="active"><span>◈</span> <span>Invoices</span></a>
+        <a th:href="@{/customers}"><span>◈</span> <span>Customers</span></a>
+        <a th:href="@{/products}"><span>◈</span> <span>Products</span></a>
+        <a th:href="@{/swagger-ui.html}" target="_blank"><span>◈</span> <span>API Docs</span></a>
+    </nav>
+    <div class="logout"><a th:href="@{/logout}"><span>◈</span> <span>Sign Out</span></a></div>
+</aside>
+<main class="main">
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div class="page-header">
+        <h1>Invoices</h1>
+        <a th:href="@{/invoices/new}" class="btn btn-accent">+ New Invoice</a>
+    </div>
+
+    <form class="search-bar" method="get" th:action="@{/invoices}">
+        <input type="text" name="q" th:value="${q}" placeholder="Search invoice or customer...">
+        <select name="status">
+            <option value="">All Statuses</option>
+            <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}" th:selected="${status == s.name()}"></option>
+        </select>
+        <button type="submit" class="btn btn-secondary">Filter</button>
+    </form>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+            <tr>
+                <th>Invoice #</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Due</th>
+                <th>Status</th>
+                <th>Total</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="inv : ${invoices}">
+                <td th:text="${inv.invoiceNumber}">INV-001</td>
+                <td th:text="${inv.customer?.name}">Customer</td>
+                <td th:text="${inv.invoiceDate}">2024-01-01</td>
+                <td th:text="${inv.dueDate}">2024-01-15</td>
+                <td><span class="badge" th:classappend="'badge-' + ${#strings.toLowerCase(inv.status.name())}" th:text="${inv.status}">DRAFT</span></td>
+                <td th:text="'₹' + ${#numbers.formatDecimal(inv.total, 1, 'COMMA', 2, 'POINT')}">₹0</td>
+                <td class="actions" style="margin:0;">
+                    <a th:href="@{/invoices/{id}(id=${inv.id})}" class="btn btn-sm btn-outline">View</a>
+                    <a th:href="@{/invoices/{id}/edit(id=${inv.id})}" class="btn btn-sm btn-secondary">Edit</a>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(invoices)}">
+                <td colspan="7" style="text-align:center;color:var(--muted);padding:2rem;">No invoices found.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

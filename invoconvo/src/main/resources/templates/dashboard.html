@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Sundaram</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .brand, .sidebar .brand, .landing .brand-mark, .login-box h1 {
+            font-family: 'Cormorant Garamond', Georgia, serif !important;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+        }
+        body { font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif; }
+
+        .hero-row {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 1.25rem;
+            margin-bottom: 1.75rem;
+            align-items: stretch;
+        }
+        .qa-tile {
+            background: var(--white);
+            border-radius: 14px;
+            padding: 1rem;
+            box-shadow: 0 4px 20px rgba(45, 74, 62, 0.08);
+            border: 1px solid var(--beige);
+            display: flex;
+            flex-direction: column;
+            gap: 0.55rem;
+            justify-content: center;
+        }
+        .qa-tile .qa-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--muted);
+            margin-bottom: 0.25rem;
+        }
+        .qa-tile .btn {
+            width: 100%;
+            justify-content: center;
+            font-size: 0.8rem;
+            padding: 0.45rem 0.6rem;
+        }
+        .stats-beside {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.9rem;
+        }
+        .stats-beside .card {
+            margin: 0;
+            min-height: 0;
+            padding: 1.1rem 1.15rem;
+        }
+        .stats-beside .card .value { font-size: 1.35rem; }
+
+        .mood-tile {
+            border-radius: 14px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 6px 24px rgba(26, 47, 40, 0.12);
+            min-height: 220px;
+            height: 100%;
+        }
+        .mood-tile img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+        .mood-tile:hover img { transform: scale(1.04); }
+        .mood-tile .cap {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            padding: 0.65rem 0.85rem;
+            background: linear-gradient(transparent, rgba(26,47,40,0.82));
+            color: #FAF6ED;
+            font-size: 0.72rem;
+            font-style: italic;
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            letter-spacing: 0.03em;
+        }
+        @media (max-width: 960px) {
+            .hero-row { grid-template-columns: 1fr; }
+            .stats-beside { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+<aside class="sidebar">
+    <div class="brand">SUNDARAM</div>
+    <div class="brand-sub">Skincare Studio</div>
+    <nav>
+        <a th:href="@{/dashboard}" class="active"><span>◈</span> <span>Dashboard</span></a>
+        <a th:href="@{/invoices}"><span>◈</span> <span>Invoices</span></a>
+        <a th:href="@{/customers}"><span>◈</span> <span>Customers</span></a>
+        <a th:href="@{/products}"><span>◈</span> <span>Products</span></a>
+        <a th:href="@{/swagger-ui.html}" target="_blank"><span>◈</span> <span>API Docs</span></a>
+    </nav>
+    <div class="logout"><a th:href="@{/logout}"><span>◈</span> <span>Sign Out</span></a></div>
+</aside>
+<main class="main">
+    <div class="page-header">
+        <div>
+            <h1 style="font-family:'Cormorant Garamond',Georgia,serif;font-weight:600;letter-spacing:0.04em;">Studio Overview</h1>
+            <p style="color:var(--muted);font-size:0.88rem;margin-top:0.2rem;">Invoices, revenue &amp; the pulse of Sundaram</p>
+        </div>
+        <a th:href="@{/invoices/new}" class="btn btn-accent">+ New Invoice</a>
+    </div>
+
+    <!-- Quick Actions (left) + KPI stats (right) -->
+    <div class="hero-row">
+        <div class="qa-tile">
+            <div class="qa-title">Quick Actions</div>
+            <a th:href="@{/invoices/new}" class="btn btn-primary">Create Invoice</a>
+            <a th:href="@{/customers/new}" class="btn btn-secondary">Add Customer</a>
+            <a th:href="@{/products/new}" class="btn btn-secondary">Add Product</a>
+            <a th:href="@{/invoices}" class="btn btn-outline">All Invoices</a>
+        </div>
+        <div class="stats-beside">
+            <div class="card highlight">
+                <div class="label">Total Invoices</div>
+                <div class="value" th:text="${totalInvoices}">0</div>
+            </div>
+            <div class="card tone-1">
+                <div class="label">Total Revenue</div>
+                <div class="value" th:text="'₹' + ${#numbers.formatDecimal(totalRevenue, 1, 'COMMA', 0, 'POINT')}">₹0</div>
+            </div>
+            <div class="card tone-2">
+                <div class="label">Collected</div>
+                <div class="value" th:text="'₹' + ${#numbers.formatDecimal(collected, 1, 'COMMA', 0, 'POINT')}">₹0</div>
+            </div>
+            <div class="card tone-3">
+                <div class="label">Outstanding</div>
+                <div class="value" th:text="'₹' + ${#numbers.formatDecimal(outstanding, 1, 'COMMA', 0, 'POINT')}">₹0</div>
+            </div>
+            <div class="card tone-4">
+                <div class="label">Overdue</div>
+                <div class="value" th:text="${overdueCount}">0</div>
+            </div>
+            <div class="card">
+                <div class="label">Drafts</div>
+                <div class="value" th:text="${draftCount}">0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Invoices (left) + Mood image (right) -->
+    <div class="dash-grid">
+        <div class="panel">
+            <h3>Recent Invoices</h3>
+            <div class="table-wrap" style="box-shadow:none;border:none;">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Invoice #</th>
+                        <th>Customer</th>
+                        <th>Status</th>
+                        <th>Total</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="inv : ${recentInvoices}">
+                        <td th:text="${inv.invoiceNumber}">INV-001</td>
+                        <td th:text="${inv.customer?.name}">Customer</td>
+                        <td><span class="badge" th:classappend="'badge-' + ${#strings.toLowerCase(inv.status.name())}" th:text="${inv.status}">DRAFT</span></td>
+                        <td th:text="'₹' + ${#numbers.formatDecimal(inv.total, 1, 'COMMA', 2, 'POINT')}">₹0</td>
+                        <td><a th:href="@{/invoices/{id}(id=${inv.id})}" class="btn btn-sm btn-outline">View</a></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(recentInvoices)}">
+                        <td colspan="5" style="text-align:center;color:var(--muted);padding:1.5rem;">No invoices yet</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="mood-tile">
+            <img th:src="@{/images/ritual-mood.png}" alt="Sundaram ritual">
+            <div class="cap">A skin ritual, centuries in the making</div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

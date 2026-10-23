@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle} + ' | Invoconvo'">Invoconvo</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<aside class="sidebar">
+    <div class="brand">Invo<span>convo</span></div>
+    <nav>
+        <a th:href="@{/dashboard}" th:classappend="${#strings.contains(#httpServletRequest.requestURI, 'dashboard')} ? 'active' : ''">
+            <span>📊</span> <span>Dashboard</span>
+        </a>
+        <a th:href="@{/invoices}" th:classappend="${#strings.contains(#httpServletRequest.requestURI, 'invoices')} ? 'active' : ''">
+            <span>📄</span> <span>Invoices</span>
+        </a>
+        <a th:href="@{/customers}" th:classappend="${#strings.contains(#httpServletRequest.requestURI, 'customers')} ? 'active' : ''">
+            <span>👥</span> <span>Customers</span>
+        </a>
+        <a th:href="@{/products}" th:classappend="${#strings.contains(#httpServletRequest.requestURI, 'products')} ? 'active' : ''">
+            <span>📦</span> <span>Products</span>
+        </a>
+        <a th:href="@{/swagger-ui.html}" target="_blank">
+            <span>📘</span> <span>API Docs</span>
+        </a>
+    </nav>
+    <div class="logout">
+        <a th:href="@{/logout}">
+            <span>🚪</span> <span>Logout</span>
+        </a>
+    </div>
+</aside>
+<main class="main">
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:replace="~{::content}">Content</div>
+</main>
+</body>
+</html>
